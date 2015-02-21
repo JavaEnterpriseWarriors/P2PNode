@@ -69,6 +69,7 @@ public class RequestReceiver implements Runnable {
                         tmpOutputStream.write(messagePartByte);
 
                         messageByte = tmpOutputStream.toByteArray();
+                        tmpOutputStream.close();
                     }
                 }
                 in.close();

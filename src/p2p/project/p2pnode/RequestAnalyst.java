@@ -51,42 +51,48 @@ public class RequestAnalyst {
     }
 
     private void serveRequest(byte[] data) {
-        ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
         try {
+            ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
             String tmp = "F";
             String fileName = new String(data).trim();
             String tmpFileName = fileName + ";";
             byte[] file = localDataManager.getFile(fileName);
-            
+
             tmpOutputStream.write(tmp.getBytes());
             tmpOutputStream.write(tmpFileName.getBytes());
             tmpOutputStream.write(file);
+
+            data = tmpOutputStream.toByteArray();
+            tmpOutputStream.close();
+            DataSender.sendData(inetAddress.getHostAddress(), port, data);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
-
-        data = tmpOutputStream.toByteArray();
-        DataSender.sendData(inetAddress.getHostAddress(), port, data);
     }
-    
-    private void serveIncoimingFile(byte[] data){
-        
-        int marker = 0;
-        ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
-        for (int i = 0; i < data.length; i++){
-            if ((new String(new byte[]{data[i]})).equals(";")){
-                marker = i + 1;
-                break;
+
+    private void serveIncoimingFile(byte[] data) {
+
+        try {
+            int marker = 0;
+            ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
+            for (int i = 0; i < data.length; i++) {
+                if ((new String(new byte[]{data[i]})).equals(";")) {
+                    marker = i + 1;
+                    break;
+                }
+                tmpOutputStream.write(data[i]);
             }
-            tmpOutputStream.write(data[i]);
+            String fileName = new String(tmpOutputStream.toByteArray());
+            tmpOutputStream.close();
+            byte[] fileData = null;
+            if (marker < data.length) {
+                fileData = Arrays.copyOfRange(data, marker, data.length);
+            }
+
+            localDataManager.saveFile(fileName, fileData);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
         }
-        String fileName = new String(tmpOutputStream.toByteArray());
-        
-        byte[] fileData = null;
-        if (marker < data.length)
-            fileData = Arrays.copyOfRange(data, marker, data.length);
-        
-        localDataManager.saveFile(fileName, fileData);
     }
 
 }
