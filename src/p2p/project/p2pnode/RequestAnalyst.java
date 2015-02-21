@@ -74,7 +74,7 @@ public class RequestAnalyst {
         int marker = 0;
         ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
         for (int i = 0; i < data.length; i++){
-            if ((new String(new byte[]{data[0]})).equals(";")){
+            if ((new String(new byte[]{data[i]})).equals(";")){
                 marker = i + 1;
                 break;
             }
