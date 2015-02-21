@@ -8,6 +8,7 @@ package p2p.project.p2pnode;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -43,12 +44,12 @@ public class RequestReceiver implements Runnable {
             try {
                 clientSocket = serverSocket.accept();
                 logger.log(Level.SEVERE, "Connected");
-                
-                byte[] messageByte = getData(new DataInputStream(clientSocket.getInputStream()));
+                InputStream input = clientSocket.getInputStream();
+                byte[] messageByte = getData(new DataInputStream(input));
                 
                 requestAnalyst = new RequestAnalyst(clientSocket.getInetAddress(), port);
                 requestAnalyst.process(messageByte);
-
+                input.close();
                 clientSocket.close();
             } catch (IOException ex) {
                 Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
