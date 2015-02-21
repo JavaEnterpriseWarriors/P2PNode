@@ -41,7 +41,7 @@ public class RequestAnalyst {
         } else if (mask.equals("F")){
             localDataManager.saveFile(message);
         } else {
-            logger.log(Level.SEVERE, new String(rest));
+            logger.log(Level.SEVERE, new String(message));
         }
     }
     

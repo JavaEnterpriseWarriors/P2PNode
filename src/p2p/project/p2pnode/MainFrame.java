@@ -1,5 +1,7 @@
 package p2p.project.p2pnode;
 
+import java.net.InetAddress;
+
 /**
  *
  * @author Marino
@@ -7,6 +9,7 @@ package p2p.project.p2pnode;
 public class MainFrame extends javax.swing.JFrame {
     
     private static DataSender dataSender;
+    private static int port;
 
     public MainFrame() {
         initComponents();
@@ -24,6 +27,11 @@ public class MainFrame extends javax.swing.JFrame {
 
         downloadButton.setText("Download");
         downloadButton.setToolTipText("");
+        downloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadButtonActionPerformed(evt);
+            }
+        });
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -53,6 +61,12 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadButtonActionPerformed
+        String msg = "Rhello";
+        String address = "192.168.1.104";
+        dataSender.sendData(address, port, msg.getBytes());
+    }//GEN-LAST:event_downloadButtonActionPerformed
+
     public static void main(String args[]) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -72,8 +86,8 @@ public class MainFrame extends javax.swing.JFrame {
         });
         
         dataSender = new DataSender();
-        
-        new Thread(new RequestReceiver(5005)).start();
+        port = 5005;
+        new Thread(new RequestReceiver(port)).start();
         
     }
 
