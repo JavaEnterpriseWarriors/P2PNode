@@ -54,11 +54,12 @@ public class RequestAnalyst {
         ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
         try {
             String tmp = "F";
-            tmpOutputStream.write(tmp.getBytes());
-            
-            String fileName = new String(data);
+            String fileName = new String(data).trim();
+            String tmpFileName = fileName + ";";
             byte[] file = localDataManager.getFile(fileName);
-            tmpOutputStream.write((fileName + ";").getBytes());
+            
+            tmpOutputStream.write(tmp.getBytes());
+            tmpOutputStream.write(tmpFileName.getBytes());
             tmpOutputStream.write(file);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
