@@ -5,6 +5,7 @@
  */
 package p2p.project.p2pnode;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -16,33 +17,75 @@ import java.util.logging.Logger;
  * @author Marino
  */
 public class RequestAnalyst {
-    
+
     private InetAddress inetAddress;
     private int port;
-    
+
     private LocalDataManager localDataManager;
-    
+
     Logger logger = Logger.getLogger(this.getClass().getName());
-    
-    public RequestAnalyst(InetAddress inetAddress, int port){
+
+    public RequestAnalyst(InetAddress inetAddress, int port) {
         this.inetAddress = inetAddress;
         this.port = port;
-        
+
         localDataManager = new LocalDataManager();
     }
-    
-    public void process(byte[] message){
-        String mask = new String(new byte[] { message[0] });
-        
-        byte[] rest = Arrays.copyOfRange(message, 1, message.length);
-        
-        if (mask.equals("R")){
-                DataSender.sendData(inetAddress.getHostAddress(), port, rest);
-        } else if (mask.equals("F")){
-            localDataManager.saveFile(message);
-        } else {
-            logger.log(Level.SEVERE, new String(message));
+
+    public void process(byte[] message) {
+        String mask = new String(new byte[]{message[0]});
+
+        byte[] data = Arrays.copyOfRange(message, 1, message.length);
+
+        switch (mask) {
+            case "R":
+                serveRequest(data);
+                break;
+            case "F":
+                serveIncoimingFile(data);
+                break;
+            default:
+                logger.log(Level.SEVERE, new String(message));
+                break;
         }
     }
+
+    private void serveRequest(byte[] data) {
+        ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
+        try {
+            String tmp = "F";
+            tmpOutputStream.write(tmp.getBytes());
+            
+            String fileName = new String(data);
+            byte[] file = localDataManager.getFile(fileName);
+            tmpOutputStream.write((fileName + ";").getBytes());
+            tmpOutputStream.write(file);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
+
+        data = tmpOutputStream.toByteArray();
+        DataSender.sendData(inetAddress.getHostAddress(), port, data);
+    }
     
+    private void serveIncoimingFile(byte[] data){
+        
+        int marker = 0;
+        ByteArrayOutputStream tmpOutputStream = new ByteArrayOutputStream();
+        for (int i = 0; i < data.length; i++){
+            if ((new String(new byte[]{data[0]})).equals(";")){
+                marker = i + 1;
+                break;
+            }
+            tmpOutputStream.write(data[i]);
+        }
+        String fileName = new String(tmpOutputStream.toByteArray());
+        
+        byte[] fileData = null;
+        if (marker < data.length)
+            fileData = Arrays.copyOfRange(data, marker, data.length);
+        
+        localDataManager.saveFile(fileName, fileData);
+    }
+
 }

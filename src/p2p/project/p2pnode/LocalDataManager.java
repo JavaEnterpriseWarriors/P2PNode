@@ -5,6 +5,7 @@
  */
 package p2p.project.p2pnode;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -15,12 +16,15 @@ public class LocalDataManager {
     
     Logger logger = Logger.getLogger(this.getClass().getName());
     
-    public void saveFile(byte[] fileBytes){
-        //saving file
+    public void saveFile(String fileName, byte[] fileBytes){
+        logger.log(Level.SEVERE, fileName);
+        logger.log(Level.SEVERE, new String(fileBytes));
     }
     
     public byte[] getFile(String fileName){
-        return null;
+        logger.log(Level.SEVERE, fileName);
+        byte[] fileData = "testFileContent".getBytes();
+        return fileData;
     }
     
 }
